@@ -1,4 +1,4 @@
-/* LED Blink Example with USB Debug Channel for Teensy USB Development Board
+/* Very basic print functions, intended to be used with usb_debug_only.c
  * http://www.pjrc.com/teensy/
  * Copyright (c) 2008 PJRC.COM, LLC
  * 
@@ -21,43 +21,42 @@
  * THE SOFTWARE.
  */
 
+// Version 1.0: Initial Release
+
 #include <avr/io.h>
 #include <avr/pgmspace.h>
-#include <util/delay.h>
-#include "usb_debug_only.h"
+
 #include "print.h"
 
-#define LED_CONFIG  (DDRD |= (1<<6))
-#define LED_ON    (PORTD &= ~(1<<6))
-#define LED_OFF   (PORTD |= (1<<6))
-#define CPU_PRESCALE(n) (CLKPR = 0x80, CLKPR = (n))
-#define DIT 80    /* unit time for morse code */
-
-#define STROBE_FREQUENCY 4
-#define STROBE_BURST_LENGTH 1000 /* microseconds */
-#define STROBE_DARK_LENGTH (1000000/STROBE_FREQUENCY - STROBE_BURST_LENGTH)
-
-int main(void)
+void print_P(const char *s)
 {
-    int duty_cycle = 0;
-    int i = 0;
-    int cycle_direction = 1;
+	char c;
 
-    // set for 16 MHz clock, and make sure the LED is off
-    CPU_PRESCALE(0);
-    LED_CONFIG;
-    LED_OFF;
-
-    // initialize the USB, but don't want for the host to
-    // configure.  The first several messages sent will be
-    // lost because the PC hasn't configured the USB yet,
-    // but we care more about blinking than debug messages!
-    usb_init();
-
-    while (1) {
-        LED_ON;
-        _delay_us(STROBE_BURST_LENGTH);
-        LED_OFF;
-        _delay_us(STROBE_DARK_LENGTH);
-    }
+	while (1) {
+		c = pgm_read_byte(s++);
+		if (!c) break;
+		if (c == '\n') usb_debug_putchar('\r');
+		usb_debug_putchar(c);
+	}
 }
+
+void phex1(unsigned char c)
+{
+	usb_debug_putchar(c + ((c < 10) ? '0' : 'A' - 10));
+}
+
+void phex(unsigned char c)
+{
+	phex1(c >> 4);
+	phex1(c & 15);
+}
+
+void phex16(unsigned int i)
+{
+	phex(i >> 8);
+	phex(i);
+}
+
+
+
+
