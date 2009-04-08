@@ -79,34 +79,56 @@
 // the common resistor means that available current will fluctuate
 // based on the number of lit elements. See the Improvements section.
 
+/* ======================================================================
+ * TODO:
+ * ----------------------------------------------------------------------
+ * 
+ * 1. Swap out the 240-ohm resistors for 60-ohm resistors. With all
+ *    six displays running they are very dim. 60-ohms will make it
+ *    brighter, but if only one digit gets turned on, it won't get
+ *    burned out, and if all 8 segments are turned on, it won't burn
+ *    out the USB port. :-)
+ * 
+ * 2. Now that I have digit select working, get a multiplexing demo
+ *    working.
+ * 
+ * 3. Refactor. Take the multiplexing  stuff and make it so that
+ *    there's separate update and render actions. That way we can set
+ *    the string to be displayed, and then play animation games with
+ *    it.
+ *
+ * ====================================================================== */
+
 // Improvements:
 
 // - Multiplexing. I've got the wire, and I've got the available
 //   ports. I've even got an extra hex inverter available to use as
 //   the line driver. (Though a buffer might have been better to keep
 //   the logic cleaner.)
-
-// - Anode resistors. There is a current problem. Heh, see what I did
+// 
+// x Anode resistors. There is a current problem. Heh, see what I did
 //   there? "Current" problem? AAAAANYWAY, in a hurry to wire up the
 //   circuit, a chose to put a single resistor on the anode. I need to
 //   change the circuit to have resistors on each define.
-
+// 
+// - Scrolling text. The demo for this is pretty obvious. :-)
+// 
 // - Duty Cycling! Note: It is essential that anode resistors be wired
 //   up first, so that baseline brightness is constant. Otherwise a
 //   dim 1 might by the same brightness as a bright 8.
-
+// 
 //   - Stage One: Display Cycling. Ramp total display brightness up
 //     and down. Amaze your friends!
-
+// 
 //     Demo: Set display dark. Put "GEt" in digits 1-3, ramp up to
 //     full brightness over 3 seconds. Hold for 2 seconds, then ramp
 //     to black over 1 second. Wait 1 second. Put "OUt" in digits 4-6,
 //     ramp up to full brightness over 3 seconds, hold 2, ramp down
 //     over 1. Wait 3 seconds. Repeat.
-
+// 
 //   - Stage Two: Interdigit Duty Cycling. Display separate digits in
 //     differing brightnesses.
-
+// 
 //     Demo 1: "Flag". Set display dark. Put "dUUUdE" in digits 1-6.
 //     Now ramp in the whole word, but stagger each letter. So each
 //     digit ramps to full brightness over 2 seconds, holds for 3
@@ -114,14 +136,14 @@
 //     staggered 250ms behind the previous one. So at 1s, digit 1 is
 //     at 50%, digit 2 is at 37.5%, digit 3 is at 25%, digit 4 is at
 //     12.5%, and digits 5 and 6 are off. 
-
+// 
 //     Demo 2: "Lotto". Set display dark. Put a random 6-digit number
 //     in the digits. For each digit { wait 2 seconds, ramp up the
 //     digit to full brightness over 1 second }. Hold the number at
 //     full brightness for 10 seconds, then repeat. (Note: Requires a
 //     PRNG. LPRNGs are easy, and technically it only needs to do
 //     digits 0-9.)
-
+// 
 //     Demo 3: "Nixie". Put 000000 in the display. Now start counting
 //     up from 0, one per second. At 800ms, begin fading the old
 //     number out and the new number in.
