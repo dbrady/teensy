@@ -26,6 +26,7 @@
 #include <util/delay.h>
 #include "usb_debug_only.h"
 #include "print.h"
+#include "7segment.h"
 
 #define LED_CONFIG  (DDRD |= (1<<6))
 #define LED_ON    (PORTD &= ~(1<<6))
@@ -80,24 +81,75 @@
 
 // Improvements:
 
-// - Multiplexing.
-// - Anode resistors.
+// - Multiplexing. I've got the wire, and I've got the available
+//   ports. I've even got an extra hex inverter available to use as
+//   the line driver. (Though a buffer might have been better to keep
+//   the logic cleaner.)
+
+// - Anode resistors. There is a current problem. Heh, see what I did
+//   there? "Current" problem? AAAAANYWAY, in a hurry to wire up the
+//   circuit, a chose to put a single resistor on the anode. I need to
+//   change the circuit to have resistors on each define.
+
+// - Duty Cycling! Note: It is essential that anode resistors be wired
+//   up first, so that baseline brightness is constant. Otherwise a
+//   dim 1 might by the same brightness as a bright 8.
+
+//   - Stage One: Display Cycling. Ramp total display brightness up
+//     and down. Amaze your friends!
+
+//     Demo: Set display dark. Put "GEt" in digits 1-3, ramp up to
+//     full brightness over 3 seconds. Hold for 2 seconds, then ramp
+//     to black over 1 second. Wait 1 second. Put "OUt" in digits 4-6,
+//     ramp up to full brightness over 3 seconds, hold 2, ramp down
+//     over 1. Wait 3 seconds. Repeat.
+
+//   - Stage Two: Interdigit Duty Cycling. Display separate digits in
+//     differing brightnesses.
+
+//     Demo 1: "Flag". Set display dark. Put "dUUUdE" in digits 1-6.
+//     Now ramp in the whole word, but stagger each letter. So each
+//     digit ramps to full brightness over 2 seconds, holds for 3
+//     seconds, and ramps down over 2 seconds, but each digit is
+//     staggered 250ms behind the previous one. So at 1s, digit 1 is
+//     at 50%, digit 2 is at 37.5%, digit 3 is at 25%, digit 4 is at
+//     12.5%, and digits 5 and 6 are off. 
+
+//     Demo 2: "Lotto". Set display dark. Put a random 6-digit number
+//     in the digits. For each digit { wait 2 seconds, ramp up the
+//     digit to full brightness over 1 second }. Hold the number at
+//     full brightness for 10 seconds, then repeat. (Note: Requires a
+//     PRNG. LPRNGs are easy, and technically it only needs to do
+//     digits 0-9.)
+
+//     Demo 3: "Nixie". Put 000000 in the display. Now start counting
+//     up from 0, one per second. At 800ms, begin fading the old
+//     number out and the new number in.
 
 // Rotate speed in uS
-#define SPEED 1000000
+#define SPEED 500000
 
 int main(void)
 {
     int i;
+    int digit;
 
     // set for 16 MHz clock, and make sure the LED is off
     CPU_PRESCALE(0);
 
     // Configure all 8 bits of Port for output
     DDRD = 255;
+    DDRC = 0xF0;
+    DDRB = 0xF0;
 
     // Set all of Port D high (to turn off all LEDs)
     PORTD = 255;
+
+    // Set Port C 4-7 high to enable 4 displays
+    PORTC = 0xF0;
+
+    // Set Port B 6-7 high to enable 2 displays
+    PORTB = 0xF0;
 
     // initialize the USB, but don't want for the host to
     // configure.  The first several messages sent will be
@@ -105,28 +157,31 @@ int main(void)
     // but we care more about blinking than debug messages!
     usb_init();
 
+    int chars[36] = {
+        DIGIT_0, DIGIT_1, DIGIT_2, DIGIT_3, DIGIT_4, DIGIT_5,
+        DIGIT_6, DIGIT_7, DIGIT_8, DIGIT_9, DIGIT_A, DIGIT_B,
+        DIGIT_C, DIGIT_D, DIGIT_E, DIGIT_F, DIGIT_G, DIGIT_H,
+        DIGIT_I, DIGIT_J, DIGIT_K, DIGIT_L, DIGIT_M, DIGIT_N,
+        DIGIT_O, DIGIT_P, DIGIT_Q, DIGIT_R, DIGIT_S, DIGIT_T,
+        DIGIT_U, DIGIT_V, DIGIT_W, DIGIT_X, DIGIT_Y, DIGIT_Z
+    };
+
+    digit = 0;
+
     while (1) {
-        int nums[16] = { 
-0x3f, // 0: 00111111
-0x06, // 1: 00000110
-0x5b, // 2: 01011011
-0x4f, // 3: 01001111
-0x66, // 4: 01100110
-0x6d, // 5: 01101101
-0x7d, // 6: 01111101
-0x07, // 7: 00000111
-0x7f, // 8: 01111111
-0x6f, // 9: 01101111
-0x77, // A: 01110111
-0x7c, // b: 01111100
-0x58, // c: 01011000
-0x5e, // d: 01011110
-0x79, // E: 01111001
-0x71, // F: 01110001
- };
-        for (i=0; i<16; ++i) {
-            PORTD = ~nums[i];
+        for (i=0; i<36; ++i) {
+            if (digit < 3) {
+                PORTB = 0;
+                PORTC = 1 << digit + 4;
+            } else {
+                PORTB = 1 << digit + 1;
+                PORTC = 0;
+            }
+            PORTD = ~chars[i];
             _delay_us(SPEED);
+            if (++digit == 6) {
+                digit = 0;
+            }
         }
     }
 }
