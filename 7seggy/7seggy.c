@@ -151,6 +151,16 @@
 // Rotate speed in uS
 #define SPEED 500000
 
+void select_digit(int digit) {
+    if (digit < 3) {
+        PORTB = 0;
+        PORTC = 1 << (digit + 4);
+    } else {
+        PORTB = 1 << (digit + 1);
+        PORTC = 0;
+    }
+}
+
 int main(void)
 {
     int i;
@@ -190,19 +200,28 @@ int main(void)
 
     digit = 0;
 
+    int message[6] = {
+        DIGIT_D, DIGIT_U, DIGIT_U, DIGIT_U, DIGIT_D, DIGIT_E
+    };
+
+    int duty_cycle[6] = {
+        //        100, 50, 10, 5, 2, 1
+        100, 100, 100, 100, 100, 100
+    };
+    int cycle_dir[6] = {
+        1, 1, 1, 1, 1, 1
+    };
+
     while (1) {
-        for (i=0; i<36; ++i) {
-            if (digit < 3) {
-                PORTB = 0;
-                PORTC = 1 << digit + 4;
-            } else {
-                PORTB = 1 << digit + 1;
-                PORTC = 0;
-            }
-            PORTD = ~chars[i];
-            _delay_us(SPEED);
-            if (++digit == 6) {
-                digit = 0;
+        for (int cycle=0; cycle<100; ++cycle) {
+            for (digit=0; digit<6; ++digit) {
+                select_digit(digit);
+                if (cycle < duty_cycle[digit]) {
+                    PORTD = ~message[digit];
+                } else {
+                    PORTD = ~DIGIT_OFF;
+                }
+                _delay_us(10);
             }
         }
     }
