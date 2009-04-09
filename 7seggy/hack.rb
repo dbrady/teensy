@@ -50,11 +50,15 @@ vals = <<EOS
 EOS
 
 
+def bin_to_teensy(b)
+  b = b.to_s.reverse.to_i(2)
+  ["%02x" % b, "%08b" % b]
+end
+
 vals.each_line do |line|
   if line.split.size > 4 && line.split()[4] =~ /[0-9]{8}/
     rbin = (line.split())[4]
-    bin = rbin.reverse
-    hex = "%02x" % bin.to_i(2)
+    hex, bin = bin_to_teensy(rbin)
     puts line.gsub(/YY/, hex).gsub(/#{rbin}/, bin)
   else
     puts line

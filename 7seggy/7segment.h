@@ -1,7 +1,8 @@
 #ifndef _7_SEGMENT_INCLUDED_H_
 #define _7_SEGMENT_INCLUDED_H_ 1
 
-#define DIGIT_OFF (0x00) /* 00000000 */
+#define DIGIT_OFF     (0x00) /* 00000000 */
+#define DIGIT_MINUS   (0x40) /* 01000000 */
 
 #define DIGIT_0 (0x3f) /* 00111111 */
 #define DIGIT_1 (0x06) /* 00000110 */
