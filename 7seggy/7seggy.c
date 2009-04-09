@@ -161,6 +161,14 @@ void select_digit(int digit) {
     }
 }
 
+void set_digit(int value) {
+    PORTD = ~value;
+}
+
+#define CYCLE_MIN (-10)
+#define CYCLE_MAX (30)
+#define CYCLE_DELAY (10)
+
 int main(void)
 {
     int i;
@@ -205,23 +213,36 @@ int main(void)
     };
 
     int duty_cycle[6] = {
-        //        100, 50, 10, 5, 2, 1
-        100, 100, 100, 100, 100, 100
+        18, 15, 12, 9, 6, 3, 0
     };
     int cycle_dir[6] = {
         1, 1, 1, 1, 1, 1
     };
 
+    int cycles = 0;
+
     while (1) {
-        for (int cycle=0; cycle<100; ++cycle) {
+        for (int cycle=0; cycle<CYCLE_MAX; ++cycle) {
             for (digit=0; digit<6; ++digit) {
                 select_digit(digit);
                 if (cycle < duty_cycle[digit]) {
-                    PORTD = ~message[digit];
+                    set_digit(message[digit]);
                 } else {
-                    PORTD = ~DIGIT_OFF;
+                    set_digit(DIGIT_OFF);
                 }
-                _delay_us(10);
+                _delay_us(CYCLE_DELAY);
+            }
+        }
+        if (++cycles > 10) {
+            cycles = 0;
+            for (digit=0; digit<6; ++digit) {
+                duty_cycle[digit] += cycle_dir[digit];
+                if (duty_cycle[digit] > CYCLE_MAX) {
+                    cycle_dir[digit] = -1;
+                }
+                if (duty_cycle[digit] < CYCLE_MIN) {
+                    cycle_dir[digit] = 1;
+                }
             }
         }
     }
