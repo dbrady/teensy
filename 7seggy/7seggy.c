@@ -165,6 +165,39 @@ void set_digit(int value) {
     PORTD = ~value;
 }
 
+void display_digit(int value, int position) {
+    select_digit(position);
+    set_digit(value);
+}
+
+/* TODO:
+
+- Write display_number, displaying a number between -99999 and 999999
+
+- Ask the system to provide some reflection:
+
+  - Display sizeof(int)
+
+  - Display INT_MAX
+
+  - Display INT_MIN
+
+- Write a RNG
+
+ */
+
+void display_number(int number) {
+    
+}
+
+/* TODO:
+
+- write display_digit(int digit, int position=5)
+
+- write display_string(char* string)
+
+ */
+
 #define CYCLE_MIN (-10)
 #define CYCLE_MAX (30)
 #define CYCLE_DELAY (10)
@@ -222,14 +255,10 @@ int main(void)
     int cycles = 0;
 
     while (1) {
+        
         for (int cycle=0; cycle<CYCLE_MAX; ++cycle) {
             for (digit=0; digit<6; ++digit) {
-                select_digit(digit);
-                if (cycle < duty_cycle[digit]) {
-                    set_digit(message[digit]);
-                } else {
-                    set_digit(DIGIT_OFF);
-                }
+                display_digit( (cycle < duty_cycle[digit]) ? message[digit] : DIGIT_OFF, digit);
                 _delay_us(CYCLE_DELAY);
             }
         }
@@ -237,11 +266,9 @@ int main(void)
             cycles = 0;
             for (digit=0; digit<6; ++digit) {
                 duty_cycle[digit] += cycle_dir[digit];
-                if (duty_cycle[digit] > CYCLE_MAX) {
-                    cycle_dir[digit] = -1;
-                }
-                if (duty_cycle[digit] < CYCLE_MIN) {
-                    cycle_dir[digit] = 1;
+                if ((duty_cycle[digit] > CYCLE_MAX && cycle_dir[digit] > 0) ||
+                    (duty_cycle[digit] < CYCLE_MIN && cycle_dir[digit] < 0)) {
+                    cycle_dir[digit] *= -1;
                 }
             }
         }
