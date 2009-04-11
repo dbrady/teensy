@@ -152,17 +152,11 @@
 #define SPEED 500000
 
 void select_digit(int digit) {
-    if (digit < 3) {
-        PORTB = 0;
-        PORTC = 1 << (digit + 4);
-    } else {
-        PORTB = 1 << (digit + 1);
-        PORTC = 0;
-    }
+    PORTD = 1 << digit;
 }
 
 void set_digit(int value) {
-    PORTD = ~value;
+    PORTB = ~value;
 }
 
 void display_digit(int value, int position) {
@@ -210,19 +204,13 @@ int main(void)
     // set for 16 MHz clock, and make sure the LED is off
     CPU_PRESCALE(0);
 
-    // Configure all 8 bits of Port for output
-    DDRD = 255;
-    DDRC = 0xF0;
-    DDRB = 0xF0;
+    // Configure all 8 bits of Ports B and D for output
+    DDRD = 0x3F;
+    DDRB = 0xFF;
 
     // Set all of Port D high (to turn off all LEDs)
-    PORTD = 255;
-
-    // Set Port C 4-7 high to enable 4 displays
-    PORTC = 0xF0;
-
-    // Set Port B 6-7 high to enable 2 displays
-    PORTB = 0xF0;
+    PORTB = 0xFF;
+    PORTD = 0x3F;
 
     // initialize the USB, but don't want for the host to
     // configure.  The first several messages sent will be
