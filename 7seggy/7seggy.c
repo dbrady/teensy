@@ -32,8 +32,13 @@
 #define LED_ON    (PORTD &= ~(1<<6))
 #define LED_OFF   (PORTD |= (1<<6))
 #define CPU_PRESCALE(n) (CLKPR = 0x80, CLKPR = (n))
-#define DIT 80    /* unit time for morse code */
+#define CYCLE_MIN (-10)
+#define CYCLE_MAX (30)
+#define CYCLE_DELAY (10)
 
+
+
+const unsigned char char_table[];
 
 // Blink the 7 output pins of port D. Looks best if you actually
 // connect LEDs to the pins, but that's just me.
@@ -180,8 +185,17 @@ void display_digit(int value, int position) {
 
  */
 
-void display_number(int number) {
-    
+void display_number(unsigned long number) {
+    int digit;
+    unsigned char code;
+    number %= 1000000;
+
+    for (digit=5; digit>=0; --digit) {
+        code = pgm_read_byte(char_table + 15 + (number % 10));
+        display_digit(code, digit);
+        number /= 10;
+        _delay_us(CYCLE_DELAY);
+    }
 }
 
 /* TODO:
@@ -191,10 +205,6 @@ void display_number(int number) {
 - write display_string(char* string)
 
  */
-
-#define CYCLE_MIN (-10)
-#define CYCLE_MAX (30)
-#define CYCLE_DELAY (10)
 
 int main(void)
 {
@@ -242,8 +252,14 @@ int main(void)
 
     int cycles = 0;
 
+#define MODE_SHOW_STRING
+    /* #define MODE_DUUUDE */
+
     while (1) {
-        
+#ifdef MODE_SHOW_STRING
+        display_number(987654);
+#endif
+#ifdef MODE_DUUUDE
         for (int cycle=0; cycle<CYCLE_MAX; ++cycle) {
             for (digit=0; digit<6; ++digit) {
                 display_digit( (cycle < duty_cycle[digit]) ? message[digit] : DIGIT_OFF, digit);
@@ -260,6 +276,68 @@ int main(void)
                 }
             }
         }
+#endif
     }
 }
 
+const unsigned char PROGMEM char_table[] = {
+    0x00, /* DIGIT_SPACE */
+    0x61, /* DIGIT_BANG */
+    0x44, /* DIGIT_QUOTE */
+    0x00, /* DIGIT_HASH */
+    0x00, /* DIGIT_DOLLAR */
+    0x00, /* DIGIT_PERCENT */
+    0x00, /* DIGIT_AMP */
+    0x40, /* DIGIT_APOS */
+    0x70, /* DIGIT_OPAREN */
+    0x1c, /* DIGIT_CPAREN */
+    0x00, /* DIGIT_PLUS */
+    0x30, /* DIGIT_COMMA */
+    0x02, /* DIGIT_MINUS */
+    0x01, /* DIGIT_PERIOD */
+    0x4a, /* DIGIT_SLASH */
+    0x3f, /* DIGIT_0 */
+    0x06, /* DIGIT_1 */
+    0x5b, /* DIGIT_2 */
+    0x4f, /* DIGIT_3 */
+    0x66, /* DIGIT_4 */
+    0x6d, /* DIGIT_5 */
+    0x7d, /* DIGIT_6 */
+    0x07, /* DIGIT_7 */
+    0x7f, /* DIGIT_8 */
+    0x6f, /* DIGIT_9 */
+    0x00, /* DIGIT_COLON */
+    0x00, /* DIGIT_SEMICOLON */
+    0x00, /* DIGIT_LT */
+    0x48, /* DIGIT_EQUAL */
+    0x00, /* DIGIT_GT */
+    0xd3, /* DIGIT_QUESTION */
+    0x6f, /* DIGIT_AT */
+    0x77, /* DIGIT_A */
+    0x7c, /* DIGIT_B */
+    0x58, /* DIGIT_C */
+    0x5e, /* DIGIT_D */
+    0x79, /* DIGIT_E */
+    0x71, /* DIGIT_F */
+    0x3d, /* DIGIT_G */
+    0x74, /* DIGIT_H */
+    0x06, /* DIGIT_I */
+    0x1e, /* DIGIT_J */
+    0x72, /* DIGIT_K */
+    0x38, /* DIGIT_L */
+    0x37, /* DIGIT_M */
+    0x54, /* DIGIT_N */
+    0x5c, /* DIGIT_O */
+    0x73, /* DIGIT_P */
+    0x3b, /* DIGIT_Q */
+    0x50, /* DIGIT_R */
+    0x6d, /* DIGIT_S */
+    0x78, /* DIGIT_T */
+    0x1c, /* DIGIT_U */
+    0x1c, /* DIGIT_V */
+    0x7e, /* DIGIT_W */
+    0x64, /* DIGIT_X */
+    0x6e, /* DIGIT_Y */
+    0x5b, /* DIGIT_Z */
+};
+    
