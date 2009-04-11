@@ -205,8 +205,8 @@ int main(void)
     CPU_PRESCALE(0);
 
     // Configure all 8 bits of Ports B and D for output
-    DDRD = 0x3F;
     DDRB = 0xFF;
+    DDRD = 0x3F;
 
     // Set all of Port D high (to turn off all LEDs)
     PORTB = 0xFF;
