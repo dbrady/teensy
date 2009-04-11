@@ -1,5 +1,21 @@
 
 vals = <<EOS
+#define DIGIT_SPACE   (0xYY) /* 00000000 */
+#define DIGIT_BANG    (0xYY) /* 10000110 */
+#define DIGIT_QUOTE   (0xYY) /* 00100010 */
+#define DIGIT_HASH    (0xYY) /* 00000000 */
+#define DIGIT_DOLLAR  (0xYY) /* 00000000 */
+#define DIGIT_PERCENT (0xYY) /* 00000000 */
+#define DIGIT_AMP     (0xYY) /* 00000000 */
+#define DIGIT_APOS    (0xYY) /* 00000010 */
+#define DIGIT_OPAREN  (0xYY) /* 00001110 */
+#define DIGIT_CPAREN  (0xYY) /* 00111000 */
+#define DIGIT_PLUS    (0xYY) /* 00000000 */
+#define DIGIT_COMMA   (0xYY) /* 00001100 */
+#define DIGIT_MINUS   (0xYY) /* 01000000 */
+#define DIGIT_PERIOD  (0xYY) /* 10000000 */
+#define DIGIT_SLASH   (0xYY) /* 01010010 */
+
 #define DIGIT_0 (0xYY) /* 11111100 */
 #define DIGIT_1 (0xYY) /* 01100000 */
 #define DIGIT_2 (0xYY) /* 11011010 */
@@ -10,6 +26,16 @@ vals = <<EOS
 #define DIGIT_7 (0xYY) /* 11100000 */
 #define DIGIT_8 (0xYY) /* 11111110 */
 #define DIGIT_9 (0xYY) /* 11110110 */
+
+#define DIGIT_COLON     (0xYY) /* 00000000 */
+#define DIGIT_SEMICOLON (0xYY) /* 00000000 */
+#define DIGIT_LT        (0xYY) /* 00000000 */
+#define DIGIT_EQUAL     (0xYY) /* 00010010 */
+#define DIGIT_GT        (0xYY) /* 00000000 */
+#define DIGIT_QUESTION  (0xYY) /* 11001011 */
+#define DIGIT_AT        (0xYY) /* 11110110 */
+
+
 #define DIGIT_A (0xYY) /* 11101110 */
 #define DIGIT_B (0xYY) /* 00111110 */
 #define DIGIT_C (0xYY) /* 00011010 */

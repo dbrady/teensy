@@ -2,7 +2,22 @@
 #define _7_SEGMENT_INCLUDED_H_ 1
 
 #define DIGIT_OFF     (0x00) /* 00000000 */
-#define DIGIT_MINUS   (0x40) /* 01000000 */
+
+#define DIGIT_SPACE   (0x00) /* 00000000 */
+#define DIGIT_BANG    (0x61) /* 01100001 */
+#define DIGIT_QUOTE   (0x44) /* 01000100 */
+#define DIGIT_HASH    (0x00) /* 00000000 */
+#define DIGIT_DOLLAR  (0x00) /* 00000000 */
+#define DIGIT_PERCENT (0x00) /* 00000000 */
+#define DIGIT_AMP     (0x00) /* 00000000 */
+#define DIGIT_APOS    (0x40) /* 01000000 */
+#define DIGIT_OPAREN  (0x70) /* 01110000 */
+#define DIGIT_CPAREN  (0x1c) /* 00011100 */
+#define DIGIT_PLUS    (0x00) /* 00000000 */
+#define DIGIT_COMMA   (0x30) /* 00110000 */
+#define DIGIT_MINUS   (0x02) /* 00000010 */
+#define DIGIT_PERIOD  (0x01) /* 00000001 */
+#define DIGIT_SLASH   (0x4a) /* 01001010 */
 
 #define DIGIT_0 (0x3f) /* 00111111 */
 #define DIGIT_1 (0x06) /* 00000110 */
@@ -14,6 +29,15 @@
 #define DIGIT_7 (0x07) /* 00000111 */
 #define DIGIT_8 (0x7f) /* 01111111 */
 #define DIGIT_9 (0x6f) /* 01101111 */
+
+#define DIGIT_COLON     (0x00) /* 00000000 */
+#define DIGIT_SEMICOLON (0x00) /* 00000000 */
+#define DIGIT_LT        (0x00) /* 00000000 */
+#define DIGIT_EQUAL     (0x48) /* 01001000 */
+#define DIGIT_GT        (0x00) /* 00000000 */
+#define DIGIT_QUESTION  (0xd3) /* 11010011 */
+#define DIGIT_AT        (0x6f) /* 01101111 */
+
 #define DIGIT_A (0x77) /* 01110111 */
 #define DIGIT_B (0x7c) /* 01111100 */
 #define DIGIT_C (0x58) /* 01011000 */
