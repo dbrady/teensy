@@ -216,10 +216,12 @@ int main(void)
 
     // Configure all 8 bits of Ports B and D for output
     DDRB = 0xFF;
+    DDRC = 0xF0;
     DDRD = 0x3F;
 
     // Set all of Port D high (to turn off all LEDs)
     PORTB = 0xFF;
+    PORTC = 0x10;
     PORTD = 0x3F;
 
     // initialize the USB, but don't want for the host to
@@ -251,11 +253,21 @@ int main(void)
     };
 
     int cycles = 0;
+    int counter = 0;
 
-#define MODE_SHOW_STRING
-    /* #define MODE_DUUUDE */
+#define cycles_per_counter 1000
+
+    // #define MODE_SHOW_STRING
+    // #define MODE_DUUUDE
+#define MODE_COUNTER
 
     while (1) {
+#ifdef MODE_COUNTER
+        for (counter=0; counter<cycles_per_counter; ++counter ) {
+            display_number(cycles);
+        }
+        ++cycles;
+#endif
 #ifdef MODE_SHOW_STRING
         display_number(987654);
 #endif
