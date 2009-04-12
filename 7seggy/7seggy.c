@@ -185,11 +185,27 @@ void display_digit(int value, int position) {
 
  */
 
+void set_relay(int value, int position) {
+    if (value == 1) {
+        PORTC |= 1 << (8-position);
+    } else {
+        PORTC &= ~(1 << (8-position));
+    }
+}
+
+void set_relays(int number) {
+    set_relay((number & 1) >> 0, 1);
+    set_relay((number & 2) >> 1, 2);
+    set_relay((number & 4) >> 2, 3);
+    set_relay((number & 8) >> 3, 4);
+}
+
 void display_number(unsigned long number) {
     int digit;
     unsigned char code;
     number %= 1000000;
 
+    set_relays(number & 0xF);
     for (digit=5; digit>=0; --digit) {
         code = pgm_read_byte(char_table + 15 + (number % 10));
         display_digit(code, digit);
@@ -220,9 +236,9 @@ int main(void)
     DDRD = 0x3F;
 
     // Set all of Port D high (to turn off all LEDs)
-    PORTB = 0xFF;
-    PORTC = 0x10;
-    PORTD = 0x3F;
+    PORTB = 0x00;
+    PORTC = 0x00;
+    PORTD = 0x00;
 
     // initialize the USB, but don't want for the host to
     // configure.  The first several messages sent will be
