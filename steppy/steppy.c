@@ -16,14 +16,37 @@
 /* TODO: Once stepping is working, abstract out direction, windings
    per revolution, then rpm */
 
+#define MOTOR_POLES 4
 #define WINDING_DELAY 25000
 #define CYCLE_PAUSE 1000000
 #define WINDINGS_PER_REVOLUTION 48
 
-int main(void)
-{
+/* 1 or -1 */
+#define DIRECTION 1
+
+unsigned char next_step(unsigned int s) {
+    if (DIRECTION == 1) {
+        s <<= 1;
+        if (s > (1  << MOTOR_POLES)) {
+            s = 0;
+        }
+    } else {
+        if (s == 0) {
+            s = 1 << MOTOR_POLES;
+        } else {
+            s >>= 1;
+        }
+    }
+    return s;
+}
+
+int main(void) {
     int i;
     int j;
+    /* m = motor windings; n = display */
+    unsigned char m = 0;
+    unsigned char n = 0;
+    
 
     // set for 16 MHz clock, and make sure the LED is off
     CPU_PRESCALE(0);
@@ -43,22 +66,13 @@ int main(void)
     while (1) {
         for(j=0; j<WINDINGS_PER_REVOLUTION/4; ++j) {
             for(i=0; i<4; ++i) {
-                PORTD = 1 << i;
-                PORTB = ~(1 << (7-i));
+                m = next_step(m);
+                n = ~(1 << (7-m));
+                PORTD = m;
+                PORTB = n;
                 _delay_us(WINDING_DELAY);
             }
         }
         _delay_us(CYCLE_PAUSE);
-/*         while (++i < 5) { */
-/*             LED_ON; */
-/*             _delay_us(CYCLE_MAX - (CYCLE_FREQ * duty_cycle)); */
-/*             LED_OFF; */
-/*             _delay_us((CYCLE_FREQ * duty_cycle)); */
-/*         } */
-/*         duty_cycle += cycle_direction; */
-/*         if ((cycle_direction == 1 && duty_cycle > CYCLE_STEP ) ||  */
-/*             (cycle_direction == -1 && duty_cycle < 0 )) { */
-/*             cycle_direction *= -1; */
-/*         } */
     }
 }
